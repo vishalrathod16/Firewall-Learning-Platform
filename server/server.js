@@ -1,0 +1,99 @@
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// In-memory storage for rules and logs
+let rules = [];
+let logs = [];
+
+// API endpoints
+app.get("/api/rules", (req, res) => {
+  res.json(rules);
+});
+
+app.post("/api/rules", (req, res) => {
+  const newRule = {
+    id: Date.now(),
+    ...req.body,
+  };
+  rules.push(newRule);
+  res.json(newRule);
+});
+
+app.get("/api/logs", (req, res) => {
+  res.json(logs);
+});
+
+// Socket.IO event handlers
+io.on("connection", (socket) => {
+  console.log("Client connected");
+
+  socket.on("startSimulation", () => {
+    // Start generating simulated attacks
+    const attackTypes = [
+      "SQL Injection",
+      "XSS",
+      "Path Traversal",
+      "Command Injection",
+    ];
+    const interval = setInterval(() => {
+      const attackType =
+        attackTypes[Math.floor(Math.random() * attackTypes.length)];
+      const request = {
+        type: attackType,
+        url: `/api/${attackType.toLowerCase().replace(" ", "-")}`,
+        timestamp: new Date(),
+      };
+
+      // Check rules against the request
+      const results = rules.map((rule) => {
+        const matches = rule.patterns.some(
+          (pattern) =>
+            request.url.includes(pattern) ||
+            request.type.toLowerCase().includes(pattern.toLowerCase())
+        );
+        return {
+          ruleName: rule.name,
+          action: matches ? "block" : "allow",
+        };
+      });
+
+      const logEntry = {
+        request,
+        results,
+        timestamp: new Date(),
+      };
+
+      logs.push(logEntry);
+      socket.emit("simulationUpdate", logEntry);
+    }, 2000);
+
+    socket.on("stopSimulation", () => {
+      clearInterval(interval);
+      socket.emit("simulationStopped");
+    });
+
+    socket.on("disconnect", () => {
+      clearInterval(interval);
+    });
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -9,6 +9,18 @@ export const darkTheme = createTheme({
     secondary: {
       main: "#f48fb1",
     },
+    error: {
+      main: "#f44336",
+    },
+    warning: {
+      main: "#ffa726",
+    },
+    info: {
+      main: "#29b6f6",
+    },
+    success: {
+      main: "#66bb6a",
+    },
     background: {
       default: "#121212",
       paper: "#1e1e1e",
