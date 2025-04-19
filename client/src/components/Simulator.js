@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Typography, Button, Paper, Grid } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Paper,
+  Grid,
+  Chip,
+  Divider,
+} from "@mui/material";
 import io from "socket.io-client";
 import RuleEditor from "./RuleEditor";
 
@@ -102,6 +111,49 @@ const Simulator = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <RuleEditor onSaveRule={handleSaveRule} />
+
+            {/* Saved Rules Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Saved Rules
+              </Typography>
+              {rules.length === 0 ? (
+                <Typography color="text.secondary">
+                  No rules saved yet. Create a rule above.
+                </Typography>
+              ) : (
+                rules.map((rule, index) => (
+                  <Box key={rule.id || index} sx={{ mb: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
+                    >
+                      <Typography variant="subtitle1">{rule.name}</Typography>
+                      <Chip
+                        label={rule.action}
+                        color={rule.action === "block" ? "error" : "success"}
+                        size="small"
+                      />
+                    </Box>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      {rule.patterns.map((pattern, i) => (
+                        <Chip
+                          key={i}
+                          label={pattern}
+                          size="small"
+                          variant="outlined"
+                        />
+                      ))}
+                    </Box>
+                    {index < rules.length - 1 && <Divider sx={{ my: 2 }} />}
+                  </Box>
+                ))
+              )}
+            </Paper>
 
             <Paper sx={{ p: 3, mb: 3 }}>
               <Box sx={{ mb: 2 }}>
