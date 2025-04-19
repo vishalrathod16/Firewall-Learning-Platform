@@ -20,6 +20,34 @@ app.use(bodyParser.json());
 let rules = [];
 let logs = [];
 
+// Attack patterns for different types of attacks
+const attackPatterns = {
+  "SQL Injection": [
+    "/api/search?q=' OR '1'='1",
+    "/api/login?username=admin'--",
+    "/api/products?id=1; DROP TABLE users",
+    "/api/user?id=1 UNION SELECT * FROM users",
+  ],
+  XSS: [
+    "/api/comment?text=<script>alert(1)</script>",
+    "/api/search?q=<img src=x onerror=alert(1)>",
+    "/api/profile?name=javascript:alert(1)",
+    "/api/feedback?message=<svg onload=alert(1)>",
+  ],
+  "Path Traversal": [
+    "/api/files?path=../../../etc/passwd",
+    "/api/download?file=..\\..\\windows\\system.ini",
+    "/api/logs?file=/proc/self/environ",
+    "/api/config?path=../../config.json",
+  ],
+  "Command Injection": [
+    "/api/ping?host=127.0.0.1; cat /etc/passwd",
+    "/api/exec?cmd=ls -la /",
+    "/api/system?command=whoami",
+    "/api/run?script=rm -rf /",
+  ],
+};
+
 // API endpoints
 app.get("/api/rules", (req, res) => {
   res.json(rules);
@@ -44,18 +72,16 @@ io.on("connection", (socket) => {
 
   socket.on("startSimulation", () => {
     // Start generating simulated attacks
-    const attackTypes = [
-      "SQL Injection",
-      "XSS",
-      "Path Traversal",
-      "Command Injection",
-    ];
+    const attackTypes = Object.keys(attackPatterns);
     const interval = setInterval(() => {
       const attackType =
         attackTypes[Math.floor(Math.random() * attackTypes.length)];
+      const patterns = attackPatterns[attackType];
+      const attackUrl = patterns[Math.floor(Math.random() * patterns.length)];
+
       const request = {
         type: attackType,
-        url: `/api/${attackType.toLowerCase().replace(" ", "-")}`,
+        url: attackUrl,
         timestamp: new Date(),
       };
 
