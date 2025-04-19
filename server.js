@@ -12,14 +12,34 @@ const server = http.createServer(app);
 // Socket.IO configuration
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? [
+            "https://firesim-client.onrender.com",
+            "https://firesim.onrender.com",
+          ]
+        : "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
   },
   transports: ["websocket", "polling"],
 });
 
-app.use(cors());
+// CORS configuration
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? [
+            "https://firesim-client.onrender.com",
+            "https://firesim.onrender.com",
+          ]
+        : "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE"],
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 
 // Store WAF rules and logs
@@ -61,19 +81,20 @@ const attackPatterns = [
 
 // WAF rule evaluation function
 function evaluateRequest(request, rules) {
-  const results = [];
-  let shouldBlock = false;
-
   // If no rules exist, allow the request
   if (rules.length === 0) {
-    results.push({
-      ruleName: "Default",
-      matches: false,
-      action: "allow",
-    });
-    return results;
+    return [
+      {
+        ruleName: "No Rules Defined",
+        matches: false,
+        action: "allow",
+        message:
+          "No WAF rules are currently defined to protect against this attack.",
+      },
+    ];
   }
 
+  // Find the first matching rule
   for (const rule of rules) {
     try {
       // Create the function from the rule's condition
@@ -81,37 +102,38 @@ function evaluateRequest(request, rules) {
       const matches = ruleFunction(request);
 
       if (matches) {
-        // If rule matches, block the request
-        results.push({
-          ruleId: rule.id,
-          ruleName: rule.name,
-          matches: true,
-          action: "block",
-        });
-        shouldBlock = true;
-        break; // Stop checking other rules if we found a match
+        // Return only the matching rule
+        return [
+          {
+            ruleId: rule.id,
+            ruleName: rule.name,
+            matches: true,
+            action: "block",
+          },
+        ];
       }
     } catch (error) {
       console.error("Error evaluating rule:", error);
-      results.push({
-        ruleId: rule.id,
-        ruleName: rule.name,
-        error: error.message,
-        action: "allow", // On error, allow the request
-      });
+      return [
+        {
+          ruleId: rule.id,
+          ruleName: rule.name,
+          error: error.message,
+          action: "allow",
+        },
+      ];
     }
   }
 
-  // If no rules matched or no blocking occurred, allow the request
-  if (!shouldBlock) {
-    results.push({
-      ruleName: "Default",
+  // If no rules matched, return message
+  return [
+    {
+      ruleName: "No Rule Matched",
       matches: false,
       action: "allow",
-    });
-  }
-
-  return results;
+      message: "No rule matched this attack pattern. The attack was allowed.",
+    },
+  ];
 }
 
 // Generate random attack request

@@ -13,7 +13,18 @@ import {
 import io from "socket.io-client";
 import RuleEditor from "./RuleEditor";
 
-const socket = io("http://localhost:5000");
+// Socket connection configuration
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? "https://firesim-server.onrender.com"
+    : "http://localhost:5000",
+  {
+    transports: ["websocket", "polling"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  }
+);
 
 const Simulator = () => {
   const [simulationActive, setSimulationActive] = useState(false);
@@ -239,28 +250,38 @@ const Simulator = () => {
               {results.length > 0 && (
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="h6" gutterBottom>
-                    WAF Results
+                    WAF Result
                   </Typography>
-                  {results.map((result, index) => (
-                    <Paper
-                      key={index}
-                      sx={{
-                        p: 2,
-                        mb: 1,
-                        bgcolor:
-                          result.action === "block"
-                            ? "error.dark"
-                            : "success.dark",
-                      }}
-                    >
-                      <Typography variant="body1">
-                        Rule: {result.ruleName}
+                  <Paper
+                    sx={{
+                      p: 2,
+                      bgcolor:
+                        results[0].action === "block"
+                          ? "error.dark"
+                          : "warning.dark",
+                    }}
+                  >
+                    {results[0].action === "allow" && !results[0].ruleId ? (
+                      <Typography variant="body1" color="warning.contrastText">
+                        {results[0].message ||
+                          "No rule matched this attack. The attack was allowed."}
                       </Typography>
-                      <Typography variant="body1">
-                        Action: {result.action}
-                      </Typography>
-                    </Paper>
-                  ))}
+                    ) : (
+                      <>
+                        <Typography variant="body1">
+                          Rule: {results[0].ruleName}
+                        </Typography>
+                        <Typography variant="body1">
+                          Action: {results[0].action}
+                        </Typography>
+                        {results[0].error && (
+                          <Typography variant="body2" color="error">
+                            Error: {results[0].error}
+                          </Typography>
+                        )}
+                      </>
+                    )}
+                  </Paper>
                 </Box>
               )}
             </Paper>
