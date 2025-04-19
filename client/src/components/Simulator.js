@@ -273,7 +273,7 @@ const Simulator = () => {
               <Typography variant="h6" gutterBottom>
                 Request Logs
               </Typography>
-              {logs.map((log, index) => (
+              {[...logs].reverse().map((log, index) => (
                 <Paper
                   key={index}
                   sx={{
