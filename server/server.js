@@ -117,6 +117,48 @@ io.on("connection", (socket) => {
       clearInterval(interval);
     });
   });
+
+  // Add handler for single attack
+  socket.on("singleAttack", (data) => {
+    const attackType = data.type;
+    const patterns = attackPatterns[attackType];
+
+    if (!patterns) {
+      console.error(`Unknown attack type: ${attackType}`);
+      return;
+    }
+
+    // Select a random pattern for the attack type
+    const attackUrl = patterns[Math.floor(Math.random() * patterns.length)];
+
+    const request = {
+      type: attackType,
+      url: attackUrl,
+      timestamp: new Date(),
+    };
+
+    // Check rules against the request
+    const results = rules.map((rule) => {
+      const matches = rule.patterns.some(
+        (pattern) =>
+          request.url.includes(pattern) ||
+          request.type.toLowerCase().includes(pattern.toLowerCase())
+      );
+      return {
+        ruleName: rule.name,
+        action: matches ? "block" : "allow",
+      };
+    });
+
+    const logEntry = {
+      request,
+      results,
+      timestamp: new Date(),
+    };
+
+    logs.push(logEntry);
+    socket.emit("simulationUpdate", logEntry);
+  });
 });
 
 const PORT = process.env.PORT || 5000;

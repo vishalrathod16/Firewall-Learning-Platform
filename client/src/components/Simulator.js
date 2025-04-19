@@ -8,6 +8,7 @@ import {
   Grid,
   Chip,
   Divider,
+  ButtonGroup,
 } from "@mui/material";
 import io from "socket.io-client";
 import RuleEditor from "./RuleEditor";
@@ -56,6 +57,10 @@ const Simulator = () => {
   const handleStopSimulation = () => {
     setSimulationActive(false);
     socket.emit("stopSimulation");
+  };
+
+  const handleSingleAttack = (attackType) => {
+    socket.emit("singleAttack", { type: attackType });
   };
 
   const handleSaveRule = async (rule) => {
@@ -164,7 +169,7 @@ const Simulator = () => {
                   disabled={simulationActive}
                   sx={{ mr: 2 }}
                 >
-                  Start Simulation
+                  Start Continuous Simulation
                 </Button>
                 <Button
                   variant="contained"
@@ -174,6 +179,42 @@ const Simulator = () => {
                 >
                   Stop Simulation
                 </Button>
+              </Box>
+
+              <Box sx={{ mt: 3, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Perform Single Attack
+                </Typography>
+                <ButtonGroup
+                  variant="contained"
+                  aria-label="outlined primary button group"
+                  sx={{ flexWrap: "wrap", gap: 1 }}
+                >
+                  <Button
+                    onClick={() => handleSingleAttack("SQL Injection")}
+                    sx={{ bgcolor: "error.main" }}
+                  >
+                    SQL Injection
+                  </Button>
+                  <Button
+                    onClick={() => handleSingleAttack("XSS")}
+                    sx={{ bgcolor: "warning.main" }}
+                  >
+                    XSS Attack
+                  </Button>
+                  <Button
+                    onClick={() => handleSingleAttack("Path Traversal")}
+                    sx={{ bgcolor: "info.main" }}
+                  >
+                    Path Traversal
+                  </Button>
+                  <Button
+                    onClick={() => handleSingleAttack("Command Injection")}
+                    sx={{ bgcolor: "secondary.main" }}
+                  >
+                    Command Injection
+                  </Button>
+                </ButtonGroup>
               </Box>
 
               {currentRequest && (
