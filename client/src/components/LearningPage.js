@@ -20,18 +20,14 @@ const LearningPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Welcome to FireSim
         </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Learn about Web Application Firewalls and Test Your Rules
-        </Typography>
         <Typography variant="body1" paragraph>
-          FireSim is an interactive platform designed to help you understand and
-          test Web Application Firewall (WAF) rules. Learn about common web
-          attacks and how WAFs protect against them.
+          An interactive learning platform for understanding Web Application
+          Firewalls (WAFs) and testing security rules.
         </Typography>
       </Paper>
 
@@ -42,37 +38,142 @@ const LearningPage = () => {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography paragraph>
+          <Typography>
             A Web Application Firewall (WAF) is a security solution that
-            protects web applications by filtering and monitoring HTTP traffic
-            between a web application and the Internet.
+            protects web applications by monitoring and filtering HTTP traffic
+            between a web application and the Internet. It helps prevent attacks
+            like SQL injection, cross-site scripting (XSS), and other common web
+            vulnerabilities.
           </Typography>
-          <Typography paragraph>
-            WAFs help protect web applications from attacks such as:
-          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Understanding Common Web Attacks</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
           <List>
             <ListItem>
               <ListItemText
                 primary="SQL Injection"
-                secondary="Malicious SQL queries injected into input fields"
+                secondary={
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      SQL Injection occurs when an attacker inserts malicious
+                      SQL statements into input fields. To block SQL Injection
+                      attacks, add these patterns to your rules:
+                    </Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText primary="' OR '1'='1" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="UNION SELECT" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="DROP TABLE" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="--" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary=";" />
+                      </ListItem>
+                    </List>
+                  </Box>
+                }
               />
             </ListItem>
+            <Divider />
             <ListItem>
               <ListItemText
                 primary="Cross-Site Scripting (XSS)"
-                secondary="Injecting malicious scripts into web pages"
+                secondary={
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      XSS attacks inject malicious scripts into web pages. To
+                      block XSS attacks, add these patterns:
+                    </Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText primary="<script>" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="javascript:" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="onerror=" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="onload=" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="alert(" />
+                      </ListItem>
+                    </List>
+                  </Box>
+                }
               />
             </ListItem>
+            <Divider />
             <ListItem>
               <ListItemText
                 primary="Path Traversal"
-                secondary="Accessing files outside the web root directory"
+                secondary={
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Path Traversal attacks attempt to access files outside the
+                      web root directory. To block these attacks, add these
+                      patterns:
+                    </Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText primary="../" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="..\\" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="/etc/passwd" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="C:\\" />
+                      </ListItem>
+                    </List>
+                  </Box>
+                }
               />
             </ListItem>
+            <Divider />
             <ListItem>
               <ListItemText
                 primary="Command Injection"
-                secondary="Executing arbitrary commands on the server"
+                secondary={
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Command Injection attacks attempt to execute system
+                      commands. To block these attacks, add these patterns:
+                    </Typography>
+                    <List dense>
+                      <ListItem>
+                        <ListItemText primary=";" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="|" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="`" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="cat /etc/passwd" />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="whoami" />
+                      </ListItem>
+                    </List>
+                  </Box>
+                }
               />
             </ListItem>
           </List>
@@ -81,30 +182,36 @@ const LearningPage = () => {
 
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">How WAF Rules Work</Typography>
+          <Typography variant="h6">How to Use the Simulator</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography paragraph>
-            WAF rules are sets of conditions that determine whether a request
-            should be allowed or blocked. Each rule consists of:
+          <Typography variant="body1" paragraph>
+            The FireSim platform provides an interactive environment to test WAF
+            rules against various attacks. Here's how to use it:
           </Typography>
           <List>
             <ListItem>
               <ListItemText
-                primary="Rule Name"
-                secondary="A descriptive name for the rule"
+                primary="1. Create WAF Rules"
+                secondary="Use the Rule Editor to create rules with patterns that match the attack types you want to block. Give your rule a descriptive name and add the relevant patterns."
               />
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="Condition"
-                secondary="The pattern or condition to match against requests"
+                primary="2. Test Individual Attacks"
+                secondary="Use the 'Perform Single Attack' buttons to test specific attack types against your rules. Each button will generate a single attack of that type."
               />
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="Action"
-                secondary="What to do when the condition is met (block or allow)"
+                primary="3. Run Continuous Simulation"
+                secondary="Use the 'Start Continuous Simulation' button to generate random attacks of all types. This helps test your rules against a variety of attacks."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="4. Monitor Results"
+                secondary="Watch the logs to see which attacks were blocked or allowed by your rules. The logs show the attack type, URL, and whether it was blocked or allowed."
               />
             </ListItem>
           </List>
@@ -113,29 +220,32 @@ const LearningPage = () => {
 
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h6">Using FireSim</Typography>
+          <Typography variant="h6">Best Practices for WAF Rules</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography paragraph>
-            FireSim provides a safe environment to:
-          </Typography>
           <List>
             <ListItem>
               <ListItemText
-                primary="Create WAF Rules"
-                secondary="Define your own rules to protect against attacks"
+                primary="Be Specific"
+                secondary="Create separate rules for different attack types to make it easier to manage and update them."
               />
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="Test Rules"
-                secondary="See how your rules perform against simulated attacks"
+                primary="Test Thoroughly"
+                secondary="Test your rules with both the single attack buttons and continuous simulation to ensure they catch all variations of attacks."
               />
             </ListItem>
             <ListItem>
               <ListItemText
-                primary="View Logs"
-                secondary="Monitor and analyze attack attempts and rule matches"
+                primary="Monitor False Positives"
+                secondary="Watch for legitimate requests that might be blocked by your rules and adjust the patterns accordingly."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary="Keep Rules Updated"
+                secondary="Regularly update your rules with new attack patterns as new vulnerabilities are discovered."
               />
             </ListItem>
           </List>
@@ -145,11 +255,12 @@ const LearningPage = () => {
       <Box sx={{ mt: 4, textAlign: "center" }}>
         <Button
           variant="contained"
+          color="primary"
           size="large"
           onClick={() => navigate("/simulator")}
           sx={{ px: 4, py: 2 }}
         >
-          Start Simulator
+          Go to Simulator
         </Button>
       </Box>
     </Container>
